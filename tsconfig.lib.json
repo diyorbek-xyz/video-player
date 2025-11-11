@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"target": "esnext",
+		"module": "esnext",
+		"moduleResolution": "node",
+
+		"lib": ["DOM", "DOM.Iterable", "ESNext"],
+		"allowJs": true,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"noFallthroughCasesInSwitch": true,
+		"allowImportingTsExtensions": false,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": false
+	},
+	"include": ["src", "index.ts"],
+	"exclude": ["node_modules", "dist", "**/*.test.tsx", "**/*.test.ts"]
+}
