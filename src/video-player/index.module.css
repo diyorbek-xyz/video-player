@@ -18,11 +18,8 @@
 	-moz-user-select: none;
 	-ms-user-select: none;
 	-webkit-user-select: none;
-	&:not(:hover) .controls {
-		opacity: 0;
-		transition-delay: 200s;
-	}
-	&:has(.barrier:hover) .controls {
+	
+	&:has(.barrier:hover) .sections_controls {
 		opacity: 0;
 	}
 	& svg,
@@ -30,7 +27,7 @@
 		color: var(--color-primary-text);
 		stroke: var(--color-primary-text);
 	}
-	& #video {
+	video {
 		position: absolute;
 		inset: 0;
 		border-radius: inherit;
@@ -39,26 +36,7 @@
 		height: 100%;
 		cursor: pointer;
 	}
-	& .barrier {
-		position: absolute;
-		width: 10px;
-		z-index: 10;
-		pointer-events: all;
-		inset: 0;
-		cursor: none;
-		&.left {
-			right: unset;
-		}
-		&.right {
-			left: unset;
-		}
-		&.top {
-			width: 100%;
-			height: 10px;
-			bottom: unset;
-		}
-	}
-	& .player-skip-view {
+	& .player_skip_view {
 		position: absolute;
 		top: 50%;
 		color: white;
@@ -354,33 +332,43 @@
 .global_volume_controls {
 	overflow: hidden;
 	transition: all 0.1s ease-in;
+	transition-delay: 2s;
+	width: 2.75rem;
 	border: none;
 	background-color: var(--color-primary);
 	color: var(--color-primary-text);
 	border-radius: 9999px;
-	display: grid;
+	display: flex;
 	align-items: center;
-	width: fit-content;
-	grid-template-columns: 1fr;
+	justify-content: space-between;
 	gap: 0.5rem;
 	position: relative;
+	padding-right: 1.25rem;
 }
 .global_volume_controls > * {
 	&:not(.volume_range_bar) {
 		background-color: transparent !important;
+		width: 2.75rem;
+		height: 2.75rem;
+		padding: 0.6rem;
 	}
 	&::before {
 		content: none !important;
 	}
 	&.volume_range_bar {
-		display: none;
+		transition-delay: 2s;
+		visibility: hidden;
 	}
 }
 
 .global_volume_controls:hover {
-	grid-template-columns: 2.75rem 5rem;
+	transition-delay: 0s;
+	width: 8.5rem;
 	padding-right: 1.25rem;
 	& > .volume_range_bar {
+		width: 100%;
+		transition-delay: 0s;
+		visibility: visible;
 		display: flex !important;
 	}
 }
@@ -408,15 +396,17 @@
 .sections_controls {
 	position: absolute;
 	z-index: 2;
-	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	height: 64px; /* h-16 */
-	padding: 1rem 2rem 0.75rem 2rem; /* pt-4 px-8 pb-3 */
+	height: 64px;
+	padding: 1rem 2rem 0.75rem 2rem;
 	bottom: 0;
 	left: 0;
 	right: 0;
 	transition: all 0.5s ease-out;
+	&:not([hidden]) {
+		display: flex;
+	}
 }
 
 .sections_volume {

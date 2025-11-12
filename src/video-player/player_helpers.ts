@@ -1,4 +1,5 @@
-import type { RequiredControllerProps } from "./types";
+import type { RequiredControllerProps } from './types';
+import style from './index.module.css';
 
 const player_config = JSON.parse(localStorage.getItem('player_config') || '0') as {
 	muted: boolean;
@@ -9,19 +10,24 @@ const player_config = JSON.parse(localStorage.getItem('player_config') || '0') a
 function skip({ step, videoControls, videoState }: { step: number } & RequiredControllerProps) {
 	videoControls.seek(videoState.time + step);
 
+	const video_player = document.getElementById(style.video_player);
+	if (!video_player) return console.error('video_player not found');
+
 	const skip_view = document.createElement('div');
-	skip_view.classList.add('player-skip-view');
+	skip_view.classList.add(style.player_skip_view);
 	if (step < 0) {
-		skip_view.classList.add('left');
+		skip_view.classList.add(style.left);
 	} else {
-		skip_view.classList.add('right');
+		skip_view.classList.add(style.right);
 		skip_view.innerText += '+';
 	}
 	skip_view.innerText += step;
-	document.getElementById('video-player')?.appendChild(skip_view);
+	video_player.appendChild(skip_view);
+	console.log(video_player);
+
 	setTimeout(() => (skip_view.style.opacity = '1'), 50);
 	setTimeout(() => (skip_view.style.opacity = '0'), 1700);
-	setTimeout(() => document.getElementById('video-player')?.removeChild(skip_view), 2000);
+	setTimeout(() => video_player.removeChild(skip_view), 2000);
 }
 async function loadPreviews(url: string) {
 	const res = await fetch(url);
@@ -57,7 +63,7 @@ function play({ videoControls, videoState }: RequiredControllerProps) {
 	else videoControls.pause();
 }
 function fullscreen() {
-	if (!document.fullscreenElement) document.getElementById('video-player')?.requestFullscreen();
+	if (!document.fullscreenElement) document.getElementById(style.video_player)?.requestFullscreen();
 	else document.exitFullscreen();
 }
 function keyboard_shortcut({ videoState, videoControls }: RequiredControllerProps, e: KeyboardEvent) {
@@ -74,7 +80,7 @@ function auto_hide() {
 	if (!controls) return;
 	controls.hidden = false;
 	clearTimeout(timeout);
-	timeout = setTimeout(() => (controls.hidden = true), 5000);
+	timeout = setTimeout(() => (controls.hidden = true), 1000);
 }
 function mute({ videoControls, videoState }: RequiredControllerProps) {
 	if (videoState.muted) videoControls.unmute();

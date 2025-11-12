@@ -94,13 +94,17 @@ const VolumeControls = () => {
 	);
 };
 const VolumeRange = () => {
-	const { state, controls } = useVideoPlayerContext().video;
+	const {
+		video: { state, controls },
+		controllers: { auto_hide },
+	} = useVideoPlayerContext();
 
 	const barRef = useRef<HTMLDivElement>(null);
 	const handle = (e: React.MouseEvent<HTMLDivElement>) => {
 		if (!barRef.current) return;
 		const rect = barRef.current.getBoundingClientRect();
 		controls.volume(Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1));
+		auto_hide();
 	};
 	return (
 		<div
