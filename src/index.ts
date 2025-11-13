@@ -1,6 +1,8 @@
-import { VideoPlayerContext, VideoPlayerContextProvider } from './video-player/video_player';
-import { TimeRange, PlayPause, Mute, VolumeControls, Status, TimeView, Download, Fullscreen, Resolutions } from './video-player/player_controllers';
-import VideoPlayer from './video-player/video_player';
+import { TimeRange, PlayPause, Mute, VolumeControls, Barrier, Status, TimeView, Download, Fullscreen, Resolutions, SkipMobile } from './video-player/controllers';
+import Player, { PlayerContextProvider, usePlayerContext } from './video-player/player';
+import { SectionControls, SectionOther, SectionVolume } from './video-player/player_sections';
 
-export default VideoPlayer;
-export { VideoPlayerContext, VideoPlayerContextProvider, TimeRange, PlayPause, Mute, VolumeControls, Status, TimeView, Download, Fullscreen, Resolutions };
+export { PlayerContextProvider, usePlayerContext };
+export { SectionControls, SectionOther, SectionVolume };
+export { TimeRange, PlayPause, Mute, VolumeControls, Barrier, Status, TimeView, Download, Fullscreen, Resolutions, SkipMobile };
+export default Player;
