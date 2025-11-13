@@ -3,7 +3,8 @@
 This package requires
 
 -   [hls.js]() for .m3u8 video formats
--   [react-use]() for controll video
+-   [react]()
+-   [react-dom]()
 
 ## Usage
 
@@ -13,9 +14,10 @@ This package requires
 - video - master.m3u8 file format (currently only hls supported)
 - poster - video poster
 - baseUrl - Optional: if you have backend api use it as baseURL
+- type - type of video, hls and mp4 supported
 
 ```js
-import VideoPlayer from '@diyorbek-xyz/video-player'
+import Player from '@diyorbek-xyz/video-player'
 
-<VideoPlayer video='/master.m3u8' previews='/previews.vtt' poster='/poster.jpg' download='/downloadPath.mp4' baseUrl='' />
+<Player type="hls-m3u8" video='/master.m3u8' previews='/previews.vtt' poster='/poster.jpg' download='/downloadPath.mp4' baseUrl='' />
 ```
