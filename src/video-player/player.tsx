@@ -2,7 +2,7 @@ import Hls, { Level, type BufferTimeRange } from 'hls.js';
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import style from './index.module.css';
 import { Barrier, Download, Fullscreen, PlayPause, Resolutions, SkipMobile, Status, TimeRange, TimeView, VolumeControls } from './controllers';
-import { SectionControls, SectionOther, SectionVolume } from './player_sections';
+import { ControlsBottom, ControlsTop, SectionOverlay, SectionOther, SectionVolume } from './player_sections';
 
 interface PlayerProps {
 	id: string;
@@ -11,7 +11,7 @@ interface PlayerProps {
 	previews?: string;
 	download?: string;
 	baseUrl?: string;
-	type: 'dash' | 'hls-m3u8' | 'basic-mp4';
+	type?: 'dash' | 'hls-m3u8' | 'basic-mp4';
 }
 interface ContextType {
 	source: {
@@ -33,6 +33,7 @@ interface ContextType {
 		duration: number;
 		hls: Hls;
 		fullscreen: boolean;
+		width: number;
 		resolutions: Level[];
 	};
 	controller: {
@@ -52,10 +53,10 @@ const playerContext = createContext<ContextType | undefined>(undefined);
  * Returns the current player context.
  *
  * This hook must be used within a <{@link PlayerContextProvider}/> component.
- * 
+ *
  * Return Type
  * @example
- * ```tsx 
+ * ```tsx
  * interface ContextType {
  *		source: {
  *			id: string;
@@ -76,6 +77,7 @@ const playerContext = createContext<ContextType | undefined>(undefined);
  *			duration: number;
  *			hls: Hls;
  *			fullscreen: boolean;
+ *			width: number;
  *			resolutions: Level[];
  *		};
  *		controller: {
@@ -101,7 +103,7 @@ function VideoElement({ ...props }: React.ComponentProps<'video'>) {
 		source: { poster, baseUrl, id },
 		controller: { play },
 	} = usePlayerContext();
-	return <video id={id} poster={baseUrl + poster} onClick={() => play()} {...props} />;
+	return <video id={'video-' + id} poster={baseUrl + poster} onClick={() => play()} {...props} />;
 }
 function PlayerContextProvider({ video, poster, previews, baseUrl, download, type, id, ...props }: React.ComponentProps<'div'> & PlayerProps) {
 	const [playing, setPlaying] = useState<boolean>(false);
@@ -115,27 +117,29 @@ function PlayerContextProvider({ video, poster, previews, baseUrl, download, typ
 	const [resolutions, setResolutions] = useState<Level[]>([]);
 	const [playerTag, setPlayerTag] = useState<HTMLVideoElement>();
 	const [fullscreen, setFullscreen] = useState<boolean>(false);
+	const [width, setWidth] = useState<number>(0);
 	const hls = useRef<Hls>(new Hls());
 
 	useEffect(() => {
-		const video_tag = document.getElementById(id) as HTMLVideoElement;
+		const video_tag = document.getElementById('video-' + id) as HTMLVideoElement;
 		setPlayerTag(video_tag);
 		if (!video_tag) return;
-		if (type == 'hls-m3u8') {
+		if (video.endsWith('.m3u8') || type == 'hls-m3u8') {
 			if (Hls.isSupported()) {
 				hls.current.loadSource(video);
 				hls.current.attachMedia(video_tag!);
 			} else if (video_tag.canPlayType('application/vnd.apple.mpegurl')) {
 				video_tag.src = baseUrl + video;
 			}
-		} else if (type == 'basic-mp4') {
+		} else if (video.endsWith('.mp4') || type == 'basic-mp4') {
+			setBuffering(false);
 			video_tag.src = baseUrl + video;
 		}
 	}, [hls.current]);
 
 	function skip(step: number) {
 		changeTime(time + step);
-		const video_player = document.getElementById(style.video_player);
+		const video_player = document.getElementById(id);
 		if (!video_player) return console.error('video_player not found');
 
 		const skip_view = document.createElement('div');
@@ -155,9 +159,12 @@ function PlayerContextProvider({ video, poster, previews, baseUrl, download, typ
 	}
 
 	useEffect(() => {
-		const video_tag = document.getElementById(id) as HTMLVideoElement;
+		const video_tag = document.getElementById('video-' + id) as HTMLVideoElement;
 
 		function keyboard_shortcut(e: KeyboardEvent) {
+			const conts = document.getElementsByClassName(style.video_player);
+			if (conts.length != 1) return console.warn(`There are ${conts.length} players`);
+
 			if (e.key == ' ') e.preventDefault();
 			if (e.key == 'ArrowRight') skip(5);
 			if (e.key == 'ArrowLeft') skip(-5);
@@ -179,16 +186,20 @@ function PlayerContextProvider({ video, poster, previews, baseUrl, download, typ
 			setTime(() => video_tag.currentTime);
 			setPlaying(() => !!video_tag.paused);
 			setBuffered(hls.current.mainForwardBufferInfo?.buffered ?? []);
+			setWidth(video_tag.getBoundingClientRect().width);
 			setBuffering(() => {
+				if (!hls.current.media) return false;
 				if (!hls.current.mainForwardBufferInfo) return true;
 				return hls.current.mainForwardBufferInfo.start >= time || time >= hls.current.mainForwardBufferInfo.end;
 			});
 		}
 
 		window.addEventListener('keydown', keyboard_shortcut);
+		window.addEventListener('resize', () => setWidth(() => video_tag.getBoundingClientRect().width));
 		video_tag.addEventListener('loadedmetadata', loadDuration);
 		video_tag.addEventListener('timeupdate', handleChange);
 		return () => {
+			window.removeEventListener('resize', () => setWidth(() => video_tag.getBoundingClientRect().width));
 			video_tag.removeEventListener('loadedmetadata', loadDuration);
 			video_tag.removeEventListener('timeupdate', handleChange);
 			window.removeEventListener('keydown', keyboard_shortcut);
@@ -230,9 +241,9 @@ function PlayerContextProvider({ video, poster, previews, baseUrl, download, typ
 		setRendition(param);
 	}
 	function changeFullscreen() {
-		const container = document.getElementById(style.video_player) as HTMLElement;
+		const container = document.getElementById(id) as HTMLElement;
 		if (!container) return;
-		if (document.fullscreenElement?.id == style.video_player) {
+		if (document.fullscreenElement?.id == id) {
 			setFullscreen(false);
 			document.exitFullscreen();
 		} else {
@@ -263,6 +274,7 @@ function PlayerContextProvider({ video, poster, previews, baseUrl, download, typ
 					duration: duration,
 					hls: hls.current,
 					fullscreen: fullscreen,
+					width: width,
 				},
 				controller: {
 					play: () => changePlaying(!playing),
@@ -274,12 +286,12 @@ function PlayerContextProvider({ video, poster, previews, baseUrl, download, typ
 					fullscreen: () => changeFullscreen(),
 				},
 			} as ContextType),
-		[playing, volume, time, muted, rendition, duration, playerTag, document.fullscreenElement, playerTag?.currentTime, playerTag?.muted, playerTag?.duration, playerTag?.paused]
+		[id, video, poster, previews, baseUrl, download, playing, volume, time, muted, buffered, buffering, resolutions, rendition, duration, width, fullscreen, hls.current, playerTag, document.fullscreenElement, playerTag?.currentTime, playerTag?.muted, playerTag?.duration, playerTag?.paused]
 	);
 
 	return (
 		<playerContext.Provider value={contextValue}>
-			<div id={style.video_player} {...props} />
+			<div id={id} className={style.video_player} {...props} />
 		</playerContext.Provider>
 	);
 }
@@ -287,10 +299,17 @@ function Player() {
 	return (
 		<>
 			<VideoElement />
-			<Status />
-			<Barrier />
-			<SkipMobile />
-			<SectionControls>
+			<SectionOverlay>
+				<Status />
+				<Barrier />
+				<SkipMobile />
+			</SectionOverlay>
+			<ControlsTop>
+				<Resolutions />
+				<Download />
+				<Fullscreen />
+			</ControlsTop>
+			<ControlsBottom>
 				<TimeRange />
 				<SectionVolume>
 					<PlayPause />
@@ -302,7 +321,7 @@ function Player() {
 					<Download />
 					<Fullscreen />
 				</SectionOther>
-			</SectionControls>
+			</ControlsBottom>
 		</>
 	);
 }

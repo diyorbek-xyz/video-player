@@ -37,6 +37,9 @@ function parseTime(t: string) {
 	const [h, m, s] = hms.split(':').map(Number);
 	return h * 3600 + m * 60 + s + (ms ? parseInt(ms) / 1000 : 0);
 }
+export function cn(...params: Array<string | undefined>) {
+	return params?.join(' ');
+}
 // let timeout: number;
 // function auto_hide() {
 // 	const controls = document.getElementById('player-controls');
@@ -74,11 +77,14 @@ const TimeRange = () => {
 		const preview_width = previewRef.current!.getBoundingClientRect().width;
 		const rect = barRef.current!.getBoundingClientRect();
 		const timeAtCursor = ((clientX - rect.left) / rect.width) * state.duration;
-		setHover(timeAtCursor);
+
+		if (timeAtCursor >= state.duration) return;
+		setHover(Math.max(Math.min((timeAtCursor * 100) / state.duration, 100), 0));
+		const position = `${Math.max(Math.min(clientX - preview_width / 2, rect.right - preview_width), 5)}px`;
 		if (previewsData) {
 			const cue = previewsData.find((c) => timeAtCursor >= c.start && timeAtCursor <= c.end);
-			setPreview(cue ? { enabled: true, image: cue.image, position: `${Math.max(Math.min(clientX - preview_width / 2, rect.right - preview_width), 5)}px`, time: timeFormatter(timeAtCursor) } : { ...preview, enabled: false });
-		} else setPreview({ enabled: true, position: `${Math.max(Math.min(clientX - preview_width / 2, rect.right - preview_width), 5)}px`, time: timeFormatter(timeAtCursor), image: '' });
+			setPreview(cue ? { enabled: true, image: cue.image, position: position, time: timeFormatter(timeAtCursor) } : { ...preview, enabled: false });
+		} else setPreview({ enabled: true, position: position, time: timeFormatter(timeAtCursor), image: '' });
 		if (change) handleClick(clientX);
 	};
 	const handleTouch = (e: React.TouchEvent<HTMLDivElement>) => handleDrag(e.touches[0].clientX, true);
@@ -90,7 +96,7 @@ const TimeRange = () => {
 				<div className={style.time_range_range}>
 					<div className={style.time_range_thumb} style={{ left: `${(state.time * 100) / state.duration}%` }} />
 					<div className={style.time_range_fill} style={{ width: `${(state.time * 100) / state.duration}%` }} />
-					<div className={style.time_range_hover} style={{ width: `${(hover * 100) / state.duration}%` }} />
+					<div className={style.time_range_hover} style={{ width: `${hover}%` }} />
 					{state.buffered.map(({ start, end }, i) => (
 						<div key={i} className={style.time_range_buffered} style={{ width: `${((end - start) * 100) / state.duration}%`, left: `${(start * 100) / state.duration}%` }} />
 					))}
@@ -107,10 +113,10 @@ const TimeRange = () => {
 const Resolutions = () => {
 	const { controller, state } = usePlayerContext();
 	const [open, setOpen] = useState<boolean>(false);
-
+	if (!state.resolutions[0]) return;
 	function changeResolution(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
 		if (state.resolutions) {
-			localStorage.setItem('player_config', JSON.stringify({ ...player_config, resolution: Number(e.currentTarget.dataset.value) }));
+			localStorage.setItem('player_config', JSON.stringify({ ...player_config, resolution: Number(e.currentTarget.dataset.value ?? -1) }));
 			controller.rendition(Number(e.currentTarget.dataset.value ?? -1));
 			setOpen(false);
 		}
@@ -130,8 +136,12 @@ const Resolutions = () => {
 				return '240p';
 			case 240:
 				return '240p';
-			default:
+			case 144:
+				return '144p';
+			case undefined:
 				return 'Auto';
+			default:
+				return `${height}p`;
 		}
 	}
 	return (
@@ -139,10 +149,10 @@ const Resolutions = () => {
 			<div className={style.rendition_root}>
 				<button onClick={() => setOpen(!open)} className={style.global_player_button + ' ' + style.rendition_label}>
 					<SettingIcon />
-					<span className={style.badge}>{formatQuality(state.resolutions[state.rendition]?.height, 'name')}</span>
+					<span className={style.badge}>{formatQuality(state.resolutions[state.rendition ?? player_config.resolution]?.height, 'name')}</span>
 				</button>
 				{open && (
-					<div className={style.rendition_select}>
+					<div data-mobile={state.width < 500} className={style.rendition_select}>
 						<button className={style.rendition_option} onClick={(e) => changeResolution(e)} title='auto' data-value={-1}>
 							Auto
 						</button>
@@ -240,19 +250,20 @@ const Mute = () => {
 	);
 };
 const VolumeControls = () => {
-	return (
-		<div className={style.global_volume_controls}>
-			<Mute />
-			<VolumeRange />
-		</div>
-	);
+	const width = usePlayerContext().state.width;
+	if (width >= 460)
+		return (
+			<div className={style.global_volume_controls}>
+				<Mute />
+				<VolumeRange />
+			</div>
+		);
 };
 const TimeView = () => {
-	const state = usePlayerContext().state;
-
+	const { time, duration } = usePlayerContext().state;
 	return (
 		<div className={style.global_time_view}>
-			{timeFormatter(state.time)} / {timeFormatter(state.duration)}
+			{timeFormatter(time)} / {timeFormatter(duration)}
 		</div>
 	);
 };
@@ -285,16 +296,18 @@ function Barrier() {
 }
 
 function SkipMobile() {
-	const { skip } = usePlayerContext().controller;
-	let count = 0;
-	let timeout = 0;
+	const {
+		controller: { skip },
+		state: { width },
+	} = usePlayerContext();
+	if (width > 500) return;
+	const [count, setCount] = useState<number>(0);
+	const [time, setTime] = useState<number>();
 	function touch(step: number) {
-		count++;
-		clearTimeout(timeout);
-		timeout = setTimeout(() => {
-			count = 0;
-		}, 200);
-		if (count >= 2) skip(step);
+		setCount(count + 1);
+		clearTimeout(time);
+		setTime(setTimeout(() => setCount(0), 250));
+		if (count >= 1) skip(step);
 	}
 	return (
 		<div className={style.skip_container}>

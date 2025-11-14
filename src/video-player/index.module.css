@@ -2,16 +2,16 @@
 	-webkit-tap-highlight-color: transparent;
 }
 
-#video_player * {
+.video_player * {
 	box-sizing: border-box;
 }
-#video_player {
-	--color-primary: #0009;
+.video_player {
+	--color-primary: #0007;
 	--color-primary-light: color-mix(in srgb, var(--color-primary) 90%, #ffffff50 20%);
 	--color-primary-dark: color-mix(in srgb, var(--color-primary) 100%, black 40%);
 	--color-primary-text: #fff;
 	font-family: sans-serif;
-	width: 60%;
+	width: 100%;
 	border-radius: 5px;
 	background-color: var(--color-primary-dark);
 	aspect-ratio: 16/9;
@@ -27,8 +27,8 @@
 		opacity: 0;
 		cursor: none;
 	}
-	&::backdrop{
-		background-color: black;
+	&::backdrop {
+		background-color: black !important;
 	}
 	& svg {
 		transition: all ease-in-out 0.3s;
@@ -46,6 +46,16 @@
 		width: 100%;
 		height: 100%;
 		cursor: pointer;
+	}
+}
+@media screen and (max-width: 500px) {
+	#video_player {
+		aspect-ratio: initial !important;
+		height: 300px;
+	}
+	.time_range_preview {
+		bottom: 7rem !important;
+		width: 35% !important;
 	}
 }
 @keyframes right {
@@ -72,7 +82,7 @@
 	height: 2.5rem; /* h-10 = 2.5rem */
 	cursor: pointer;
 	position: absolute;
-	z-index: 2;
+	z-index: 10;
 	justify-self: center;
 	top: -1.25rem; /* -top-5 = -1.25rem */
 	left: 50%;
@@ -101,21 +111,21 @@
 	opacity: 0;
 	position: absolute;
 	height: 100%;
-	z-index: 2;
+	z-index: 8;
 	background: #b0b0b090;
 }
 
 .time_range_fill {
 	position: absolute;
 	height: 100%;
-	z-index: 3;
+	z-index: 9;
 	background: linear-gradient(to right, red 0%, fuchsia 100%); /* from-red-600 to-fuchsia-700 */
 }
 
 .time_range_buffered {
 	position: absolute;
 	height: 100%;
-	z-index: 1;
+	z-index: 7;
 	background: rgba(255, 255, 255, 0.7);
 }
 
@@ -130,13 +140,13 @@
 	border-radius: 9999px;
 	background-color: red;
 	pointer-events: none;
-	z-index: 4;
+	z-index: 10;
 }
 
 .time_range_preview {
 	position: absolute;
 	bottom: 8rem;
-	width: 16.5rem;
+	width: 17rem;
 	aspect-ratio: 16/9;
 	border-radius: 0.3rem;
 	display: flex;
@@ -144,7 +154,7 @@
 	background-color: var(--color-primary, rgba(0, 0, 0, 0.6));
 	outline: 1px solid var(--color-primary-light);
 	backdrop-blur: 8px;
-	z-index: 4;
+	z-index: 10;
 	&[hidden] {
 		visibility: hidden;
 	}
@@ -163,6 +173,7 @@
 }
 
 .time_range_preview_time {
+	z-index: 10;
 	position: absolute;
 	bottom: -3rem;
 	width: 5rem;
@@ -220,12 +231,14 @@
 
 .volume_range_fill {
 	position: absolute;
+	z-index: 9;
 	height: 0.3rem;
 	background-color: white;
 	border-top-left-radius: 100px;
 	border-bottom-left-radius: 100px;
 }
 .volume_range_track {
+	z-index: 8;
 	position: absolute;
 	height: 0.3rem;
 	width: 100%;
@@ -239,6 +252,7 @@
 	left: 50%;
 	transform: translate(-50%, -50%);
 	width: 1rem; /* size-4 */
+	z-index: 10;
 	height: 1rem;
 	background-color: white;
 	border-radius: 9999px;
@@ -257,12 +271,11 @@
 	font-weight: bold;
 }
 
-/* badges inside label */
 .rendition_label .badge {
 	background-color: red;
 	padding: 0 0.25rem;
 	border-radius: 1px;
-	z-index: 3;
+	z-index: 11;
 	position: absolute;
 	top: -0.25rem;
 	right: -0.25rem;
@@ -275,7 +288,7 @@
 
 .rendition_select {
 	position: absolute;
-	z-index: 2;
+	z-index: 12;
 	display: flex !important;
 	flex-direction: column-reverse;
 	justify-content: flex-end;
@@ -286,6 +299,14 @@
 	padding: 0.5rem;
 	background-color: var(--color-primary);
 	border-radius: 0.5rem;
+	&[data-mobile="true"] {
+		top: 3rem;
+		height: 8rem;
+		bottom: unset !important;
+		& > .rendition_option {
+			font-size: 1rem;
+		}
+	}
 }
 
 .rendition_option {
@@ -319,6 +340,7 @@
 	padding: 0 1.25rem; /* px-5 */
 	cursor: pointer;
 	position: relative;
+	z-index: 10;
 }
 
 .global_time_view:active {
@@ -331,7 +353,7 @@
 	inset: 0.1875rem; /* 3px */
 	border-radius: 9999px;
 	background-color: rgba(255, 255, 255, 0.1);
-	z-index: 2;
+	z-index: 9;
 	display: none;
 }
 
@@ -352,10 +374,10 @@
 	cursor: pointer;
 	position: relative;
 	transition: all 0.03s ease-in-out;
-	z-index: 2 !important;
+	z-index: 10 !important;
 }
 .global_player_button.play {
-	width: 3rem; /* size-11 */
+	width: 3rem;
 	height: 3rem;
 	& > svg {
 		width: 2rem;
@@ -374,7 +396,7 @@
 	inset: 0.1875rem;
 	border-radius: 9999px;
 	background-color: rgba(255, 255, 255, 0.1);
-	z-index: 2;
+	z-index: 9;
 	display: none;
 }
 
@@ -397,7 +419,8 @@
 .global_paused {
 	position: absolute;
 	transform: scale(2);
-	z-index: 2;
+	z-index: 50 !important;
+	pointer-events: all !important;
 }
 
 .global_buffering {
@@ -408,15 +431,12 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 10;
+	z-index: 20;
 }
 
-/* ======================= */
-/* Sections */
-/* ======================= */
-.sections_controls {
+.controls_bottom {
 	position: absolute;
-	z-index: 2;
+	z-index: 11;
 	justify-content: space-between;
 	align-items: center;
 	height: 64px;
@@ -428,6 +448,20 @@
 	&:not([hidden]) {
 		display: flex;
 	}
+}
+.controls_top {
+	position: absolute;
+	z-index: 11;
+	display: flex;
+	justify-content: end;
+	align-items: center;
+	height: 64px;
+	gap: 0.75rem;
+	padding: 1rem 2rem 0.75rem 2rem;
+	top: 0;
+	left: 0;
+	right: 0;
+	transition: all 0.5s ease-out;
 }
 
 .sections_volume {
@@ -444,6 +478,16 @@
 	justify-content: flex-end;
 	align-items: center;
 	gap: 0.75rem;
+}
+.sections_overlay {
+	position: absolute;
+	z-index: 6;
+	inset: 0;
+	border-radius: inherit;
+	pointer-events: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .buffering_container {
@@ -550,7 +594,7 @@
 		cursor: none;
 		position: absolute;
 		pointer-events: all !important;
-		z-index: 1;
+		z-index: 20;
 		inset: 0;
 		bottom: 6rem;
 		overflow: hidden;
@@ -578,9 +622,8 @@
 		pointer-events: all !important;
 		z-index: 5;
 		inset: 0;
-		bottom: 5rem;
 		overflow: hidden;
-		width: 40%;
+		width: 35%;
 		&.left {
 			right: unset !important;
 		}
@@ -595,10 +638,12 @@
 	color: white;
 	font-size: 40px;
 	transform: translateY(-50%);
-	z-index: 9;
+	z-index: 20;
 	opacity: 0;
 	transition: all ease-in 0.2s;
+	pointer-events: none;
 	letter-spacing: 30px;
+	text-shadow: 0 0 10px black;
 	&.left {
 		animation: left 0.5s;
 		left: 50px;

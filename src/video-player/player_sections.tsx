@@ -1,13 +1,23 @@
 import type React from 'react';
-import style from './index.module.css'
+import style from './index.module.css';
+import { cn } from './controllers';
+import { usePlayerContext } from './player';
 
-function SectionControls({ className, ...props }: React.ComponentProps<'div'>) {
-	return <div id='player-controls' hidden={false} className={style.sections_controls} {...props}></div>;
+function ControlsTop({ className, ...props }: React.ComponentProps<'div'>) {
+	const width = usePlayerContext().state.width;
+	if (width < 500) return <div id='controls-top' className={cn(style.controls_top, className)} {...props} />;
 }
-function SectionVolume(props: React.ComponentProps<'div'>) {
-	return <div id='player-volumes' className={style.sections_volume} {...props}></div>;
+function ControlsBottom({ className, ...props }: React.ComponentProps<'div'>) {
+	return <div id='player-controls' hidden={false} className={cn(style.controls_bottom, className)} {...props} />;
 }
-function SectionOther(props: React.ComponentProps<'div'>) {
-	return <div id='player-other' className={style.sections_others} {...props}></div>;
+function SectionOverlay({ className, ...props }: React.ComponentProps<'div'>) {
+	return <div id='player-overlay' className={cn(style.sections_overlay, className)} {...props} />;
 }
-export { SectionOther, SectionVolume, SectionControls };
+function SectionVolume({ className, ...props }: React.ComponentProps<'div'>) {
+	return <div id='player-volumes' className={cn(style.sections_volume, className)} {...props} />;
+}
+function SectionOther({ className, ...props }: React.ComponentProps<'div'>) {
+	const width = usePlayerContext().state.width;
+	if (width >= 500) return <div id='player-other' className={cn(style.sections_others, className)} {...props} />;
+}
+export { SectionOther, SectionVolume, ControlsBottom, ControlsTop, SectionOverlay };
