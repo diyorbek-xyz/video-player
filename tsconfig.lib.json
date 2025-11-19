@@ -19,5 +19,5 @@
 		"noEmit": false
 	},
 	"include": ["src", "index.ts"],
-	"exclude": ["node_modules", "dist", "**/*.test.tsx", "**/*.test.ts"]
+	"exclude": ["node_modules", "dist", "public", "**/*.test.tsx", "**/*.test.ts"]
 }

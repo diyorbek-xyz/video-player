@@ -1,7 +1,7 @@
 import type React from 'react';
+import { usePlayerContext } from '../context';
+import { cn } from '../helpers';
 import style from './index.module.css';
-import { cn } from './controllers';
-import { usePlayerContext } from './player';
 
 function ControlsTop({ className, ...props }: React.ComponentProps<'div'>) {
 	const width = usePlayerContext().state.width;
