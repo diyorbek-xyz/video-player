@@ -1,0 +1,122 @@
+.time_bar {
+	width: 98%;
+	display: flex;
+	align-items: end;
+	height: 2.5rem;
+	cursor: pointer;
+	position: absolute;
+	z-index: 10;
+	justify-self: center;
+	top: -2.3rem;
+	left: 50%;
+	transform: translateX(-50%);
+}
+.time_bar:hover .hover {
+	opacity: 1;
+}
+.time_bar:hover .range {
+	height: 0.5rem;
+}
+.time_bar:hover .thumb {
+	opacity: 100%;
+	transform: translate(-50%, -50%) scale(1);
+}
+.range {
+	width: 100%;
+	position: relative;
+	height: 0.3rem;
+	cursor: pointer;
+	background-color: #50505080;
+	transition: height 140ms;
+	border-radius: 2px;
+	& > * {
+		border-top-left-radius: 2px;
+		border-bottom-left-radius: 2px;
+	}
+}
+.thumb {
+	opacity: 0%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%) scale(0.6);
+	width: 1rem;
+	height: 1rem;
+	border-radius: 9999px;
+	background-color: red;
+	pointer-events: none;
+	z-index: 10;
+	transition: opacity ease-out 0.2s, transform ease-out 0.2s;
+}
+.fill {
+	position: absolute;
+	height: 100%;
+	z-index: 9;
+	background: linear-gradient(to right, red 0%, fuchsia 100%);
+}
+.hover {
+	transition: opacity all 2s;
+	opacity: 0;
+	position: absolute;
+	height: 100%;
+	z-index: 8;
+	background: #b0b0b090;
+}
+.buffers{
+    display: flex;
+    align-items: center;
+    position: absolute;
+    inset: 0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+.buffered {
+	position: absolute;
+	height: 100%;
+	z-index: 7;
+	background: rgba(255, 255, 255, 0.7);
+}
+.preview_root {
+	position: absolute;
+	height: 40px;
+	display: flex;
+	align-items: end;
+}
+.preview {
+	pointer-events: none;
+	position: relative;
+	bottom: 2rem;
+	aspect-ratio: 16/9;
+	border-radius: 0.3rem;
+	display: flex;
+	gap: 10px;
+	flex-direction: column;
+	align-items: center;
+	justify-content: end;
+	backdrop-blur: 8px;
+	z-index: 10;
+	transition: opacity ease-out 0.1s;
+	opacity: 100%;
+
+	transition-delay: 30ms;
+	&[hidden] {
+		transition-delay: 0ms;
+		opacity: 0%;
+	}
+}
+.preview_image {
+	outline: 1px solid white;
+	border-radius: inherit;
+	width: 200px;
+	object-fit: cover;
+}
+.preview_time {
+	z-index: 10;
+	width: 5rem;
+	border-radius: 0.3rem;
+	display: flex;
+	justify-content: center;
+	font-size: 1rem;
+	text-shadow: 0 0 10px black;
+	margin: 0;
+}

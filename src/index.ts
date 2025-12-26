@@ -1,7 +1,4 @@
-import Player from './video-player/autoResponsive';
-import PlayerDesktop from './video-player/desktop/player';
-import PlayerMobile from './video-player/mobile/player';
+import { PlayerContextProvider } from './video-player/helpers';
+import PlayerDesktop from './video-player/player';
 
-export { PlayerDesktop, PlayerMobile };
-export { PlayerContextProvider, usePlayerContext } from './video-player/context';
-export default Player;
+export { PlayerDesktop, PlayerContextProvider };
