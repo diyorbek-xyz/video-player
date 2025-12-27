@@ -7,7 +7,7 @@ if (root) {
 	createRoot(root).render(
 		<StrictMode>
 			<div style={{ width: 800 }}>
-				<VideoPlayer src='/video.mp4' poster='/poster.png' />
+				<VideoPlayer src='https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8' poster='/poster.png' />
 			</div>
 		</StrictMode>
 	);

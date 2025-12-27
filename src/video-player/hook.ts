@@ -16,7 +16,6 @@ export type PlayerState = {
 export function useVideoPlayer(url: string, type?: string) {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const hlsRef = useRef<Hls | null>(null);
-
 	const [state, dispatch] = useReducer((s: PlayerState, a: Partial<PlayerState>) => ({ ...s, ...a }), {
 		playing: false,
 		volume: 1,
@@ -69,10 +68,11 @@ export function useVideoPlayer(url: string, type?: string) {
 		if (!video) return;
 
 		if (Hls.isSupported() && (url.endsWith('.m3u8') || type === 'hls-m3u8')) {
-			const hls = new Hls({ enableWorker: true });
+			const hls = new Hls({ enableWorker: true, maxBufferSize: 1 });
 			hlsRef.current = hls;
 			hls.loadSource(url);
 			hls.attachMedia(video);
+
 			hls.loadLevel = Number(localStorage.getItem('resolution') ?? '-1');
 			dispatch({ currentLevel: Number(localStorage.getItem('resolution') ?? '-1') });
 			hls.on(Hls.Events.MANIFEST_PARSED, () => dispatch({ levels: hls.levels }));
@@ -86,11 +86,17 @@ export function useVideoPlayer(url: string, type?: string) {
 		const onLoadedMetadata = () => dispatch({ duration: video.duration });
 		const onPlay = () => dispatch({ playing: true });
 		const onPause = () => dispatch({ playing: false });
+		const onWaiting = () => dispatch({ buffering: true });
+		const onPlaying = () => dispatch({ buffering: false });
 
 		video.addEventListener('timeupdate', onTimeUpdate);
 		video.addEventListener('loadedmetadata', onLoadedMetadata);
 		video.addEventListener('play', onPlay);
 		video.addEventListener('pause', onPause);
+		video.addEventListener('waiting', onWaiting);
+		video.addEventListener('stalled', onWaiting);
+		video.addEventListener('playing', onPlaying);
+		video.addEventListener('canplay', onPlaying);
 
 		return () => {
 			video.removeEventListener('timeupdate', onTimeUpdate);

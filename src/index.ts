@@ -1,4 +1,4 @@
-import { PlayerContextProvider } from './video-player/helpers';
-import PlayerDesktop from './video-player/player';
+import { useVideoPlayer } from './video-player/hook';
+import VideoPlayer from './video-player/player';
 
-export { PlayerDesktop, PlayerContextProvider };
+export { VideoPlayer, useVideoPlayer };

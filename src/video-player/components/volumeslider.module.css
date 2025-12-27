@@ -1,5 +1,4 @@
 .volume {
-	overflow: hidden;
 	transition: all 0.1s ease-in;
 	border: none;
 	background-color: var(--color-primary);
