@@ -77,3 +77,9 @@
 	background-color: transparent !important;
 	padding: 0.6rem;
 }
+
+@media (max-width: 700px) {
+	.volume {
+		display: none;
+	}
+}

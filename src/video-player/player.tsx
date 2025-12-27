@@ -26,12 +26,15 @@ function VideoPlayer({ src, poster, download }: { src: string; poster: string; d
 		const player = document.getElementById('player');
 		const root = document.getElementById('player-root');
 		if (player && root) {
-			let timeout: number = setTimeout(() => root.classList.add(style.hidden), 3000);
-			player.addEventListener('mousemove', () => {
-				root.classList.remove(style.hidden);
+			let timeout: number;
+			if (state.playing) timeout = setTimeout(() => root.classList.add(style.hidden), 3000);
+			function hide() {
+				root!.classList.remove(style.hidden);
 				clearTimeout(timeout);
-				if (state.playing) timeout = setTimeout(() => root.classList.add(style.hidden), 3000);
-			});
+				if (state.playing) timeout = setTimeout(() => root!.classList.add(style.hidden), 3000);
+			}
+			player.addEventListener('mousemove', hide);
+			player.addEventListener('touchmove', hide);
 		}
 		return () => {
 			window.removeEventListener('keydown', keyboard);
@@ -124,7 +127,7 @@ function VideoPlayer({ src, poster, download }: { src: string; poster: string; d
 						</div>
 					</div>
 					<div id='player-other' className={style.others}>
-						<a className={style.button} data-tooltip='Download' href={download ?? src}>
+						<a className={cn(style.button, style.download)} data-tooltip='Download' href={download ?? src}>
 							<DownloadIcon />
 						</a>
 						<Rendition levels={state.levels} changeLevel={actions.changeLevel} level={state.currentLevel} />
@@ -237,7 +240,7 @@ function TimeSlider({ changeTime, currentTime, duration, buffers }: { changeTime
 			</div>
 			<div ref={previewRef} className={timeslider.preview_root} style={{ left: timePreview.position }}>
 				<div id='preview' hidden={!timePreview.enabled} className={timeslider.preview} data-image={!timePreview.image}>
-					{!timePreview.image && <img className={timeslider.preview_image} src='/poster.png' />}
+					{timePreview.image && <img className={timeslider.preview_image} src='/poster.png' />}
 					<h1 className={timeslider.preview_time}>{timePreview.time}</h1>
 				</div>
 			</div>
